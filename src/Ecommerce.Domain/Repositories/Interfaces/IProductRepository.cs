@@ -9,8 +9,8 @@ namespace Ecommerce.Domain.Repositories.Interfaces
 {
     public interface IProductRepository
     {
-        Product GetById(Guid id);
-        IEnumerable<Product> GetAll();
-        void Update(Product product);
+        public Task<Product> GetById(Guid id);
+        public Task<IEnumerable<Product>> GetAll();
+        public Task Update(Product product);
     }
 }

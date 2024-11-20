@@ -9,6 +9,6 @@ namespace Ecommerce.Domain.Repositories.Interfaces
 {
     public interface ICustomerRepository
     {
-        Customer GetById(Guid id);
+        public Task<Customer> GetById(Guid id);
     }
 }
