@@ -1,8 +1,6 @@
 using Ecommerce.API;
 using Ecommerce.Application.Services;
 using Ecommerce.Application.Services.Interfaces;
-using Ecommerce.Domain.Repositories.Interfaces;
-using Ecommerce.Infrastructure.DataAccess;
 using Ecommerce.Infrastructure.DependencyInjection;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;

@@ -1,8 +1,5 @@
-﻿using Ecommerce.Application.Services;
+﻿using Ecommerce.Application.DataTransferObjects;
 using Ecommerce.Application.Services.Interfaces;
-using Ecommerce.Application.DataTransferObjects;
-using Ecommerce.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Controllers
