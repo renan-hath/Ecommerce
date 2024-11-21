@@ -12,5 +12,13 @@ namespace Ecommerce.Domain.Entities
         public Guid ProductId { get; set; }
         public Guid CustomerId { get; set; }
         public DateTime ReservationDate { get; set; }
+
+        public Reservation(Guid productId, Guid customerId)
+        {
+            Id = Guid.NewGuid();
+            ProductId = productId;
+            CustomerId = customerId;
+            ReservationDate = DateTime.UtcNow;
+        }
     }
 }

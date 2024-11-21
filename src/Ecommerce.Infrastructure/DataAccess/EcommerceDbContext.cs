@@ -12,6 +12,7 @@ namespace Ecommerce.Infrastructure.DataAccess
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         public EcommerceDbContext(DbContextOptions<EcommerceDbContext> options) : base(options) { }
     }
