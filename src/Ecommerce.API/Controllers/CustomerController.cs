@@ -66,6 +66,7 @@ namespace Ecommerce.API.Controllers
             try
             {
                 var updatedCustomer = await _customerService.Update(id, customerDto);
+                if (updatedCustomer == null) return NotFound();
                 return Ok(updatedCustomer);
             }
             catch (Exception ex)

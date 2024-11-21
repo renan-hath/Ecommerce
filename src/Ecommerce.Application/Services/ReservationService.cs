@@ -82,7 +82,7 @@ namespace Ecommerce.Application.Services
 
             if (reservations == null || !reservations.Any())
             {
-                throw new KeyNotFoundException("No reservations found for the given customer.");
+                return Enumerable.Empty<Product>();
             }
 
             var productIds = reservations.Select(r => r.ProductId).Distinct();

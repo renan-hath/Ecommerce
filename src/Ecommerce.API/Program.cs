@@ -14,7 +14,7 @@ builder.Services.AddInfrastructureServices();
 // Configure Hangfire for jobs scheduling.
 builder.Services.AddHangfire(config =>
     config.UseEFCoreStorage(options =>
-        options.UseInMemoryDatabase("EcommerceDb")) // Usa o mesmo banco InMemory já configurado
+        options.UseInMemoryDatabase("EcommerceDb"))
 );
 builder.Services.AddHangfireServer();
 

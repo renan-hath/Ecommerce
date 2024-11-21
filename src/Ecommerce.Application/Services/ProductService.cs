@@ -27,8 +27,6 @@ namespace Ecommerce.Application.Services
         {
             var product = await _productRepository.GetById(id);
 
-            if (product == null) { throw new KeyNotFoundException("Product not found."); }
-
             return product;
         }
 
@@ -36,9 +34,9 @@ namespace Ecommerce.Application.Services
         {
             var products = await _productRepository.GetByIds(ids);
 
-            if (products == null || !products.Any())
+            if (products == null)
             {
-                throw new KeyNotFoundException("No products found for the given IDs.");
+                return Enumerable.Empty<Product>();
             }
 
             return products;

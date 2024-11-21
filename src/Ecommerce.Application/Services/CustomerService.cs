@@ -26,8 +26,6 @@ namespace Ecommerce.Application.Services
         {
             var customer = await _customerRepository.GetById(id);
 
-            if (customer == null) { throw new KeyNotFoundException("Customer not found."); }
-
             return customer;
         }
 
