@@ -14,6 +14,9 @@ namespace Ecommerce.Application.Services
         private readonly IReservationRepository _reservationRepository;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
+        private const string _productStatusAvailable = "disponível";
+        private const string _productStatusUnavailable = "indisponível";
+        private const string _productStatusReserved = "reservado";
 
         public ReservationService(IReservationRepository reservationRepository, ICustomerService customerService, IProductService productService)
         {
@@ -22,11 +25,11 @@ namespace Ecommerce.Application.Services
             _productService = productService;
         }
 
-        public async Task<Reservation> CreateReservation(Guid productId, Guid customerId)
+        public async Task<Reservation> Add(Guid productId, Guid customerId)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetById(productId);
 
-            if (product == null || product.Equals("reservado") || product.Equals("indisponível"))
+            if (product == null || product.Status.Equals(_productStatusAvailable) || product.Status.Equals(_productStatusUnavailable))
             {
                 throw new InvalidOperationException("The product is invalid or currently unavailable.");
             }
@@ -40,14 +43,23 @@ namespace Ecommerce.Application.Services
 
             var reservation = new Reservation(product.Id, customer.Id);
 
-            product.Status = "reservado";
-            await _productService.UpdateProduct(product);
+            product.Status = _productStatusReserved;
+            await _productService.Update(product);
             await _reservationRepository.Add(reservation);
 
             return reservation;
         }
 
-        public async Task<IEnumerable<Reservation>> GetReservationsByCustomer(Guid customerId)
+        public async Task<Reservation> GetById(Guid id)
+        {
+            var reservation = await _reservationRepository.GetById(id);
+
+            if (reservation == null) { throw new KeyNotFoundException("Reservation not found."); }
+
+            return reservation;
+        }
+
+        public async Task<IEnumerable<Reservation>> GetAllByCustomerId(Guid customerId)
         {
             var customer = await _customerService.GetById(customerId);
 
@@ -59,21 +71,16 @@ namespace Ecommerce.Application.Services
             return await _reservationRepository.GetByCustomerId(customerId);
         }
 
-        public async Task<IEnumerable<Product>> GetProductsReservedByCustomer(Guid customerId)
+        public async Task<IEnumerable<Reservation>> GetAll() => await _reservationRepository.GetAll();
+
+        public async Task Update(Reservation reservation)
         {
-            var customer = await _customerService.GetById(customerId);
+            await _reservationRepository.Update(reservation);
+        }
 
-            if (customer == null)
-            {
-                throw new KeyNotFoundException("Customer not found.");
-            }
-
-            var reservations = await GetReservationsByCustomer(customerId);
-
-            var productsIds = reservations.Select(r => r.ProductId).Distinct();
-            var products = await _productService.GetProductsByIds(productsIds);
-
-            return products;
+        public async Task Delete(Guid id)
+        {
+            await _reservationRepository.Delete(id);
         }
     }
 }

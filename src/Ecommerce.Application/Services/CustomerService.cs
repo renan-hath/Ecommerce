@@ -18,9 +18,33 @@ namespace Ecommerce.Application.Services
             _customerRepository = customerRepository;
         }
 
+        public async Task Add(Customer customer)
+        {
+            await _customerRepository.Add(customer);
+        }
+
         public async Task<Customer> GetById(Guid id)
         {
-            return await _customerRepository.GetById(id);
+            var customer = await _customerRepository.GetById(id);
+
+            if (customer == null) { throw new KeyNotFoundException("Customer not found."); }
+
+            return customer;
+        }
+
+        public async Task<IEnumerable<Customer>> GetAll()
+        {
+            return await _customerRepository.GetAll();
+        }
+
+        public async Task Update(Customer customer)
+        {
+            await _customerRepository.Update(customer);
+        }
+
+        public async Task Delete(Guid id)
+        {
+            await _customerRepository.Delete(id);
         }
     }
 }

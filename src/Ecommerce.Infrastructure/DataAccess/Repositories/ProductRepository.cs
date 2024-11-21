@@ -18,14 +18,13 @@ namespace Ecommerce.Infrastructure.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<Product> GetById(Guid id) => await _context.Products.FindAsync(id);
-
-        public async Task<IEnumerable<Product>> GetByIds(IEnumerable<Guid> ids)
+        public async Task Add(Product product)
         {
-            return await _context.Products
-                .Where(p => ids.Contains(p.Id))
-                .ToListAsync();
+            await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
         }
+
+        public async Task<Product> GetById(Guid id) => await _context.Products.FindAsync(id);
 
         public async Task<IEnumerable<Product>> GetAll() => await _context.Products.ToListAsync();
 
@@ -33,6 +32,17 @@ namespace Ecommerce.Infrastructure.DataAccess.Repositories
         {
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task Delete(Guid id)
+        {
+            var product = await GetById(id);
+
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

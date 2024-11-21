@@ -9,6 +9,10 @@ namespace Ecommerce.Application.Services.Interfaces
 {
     public interface ICustomerService
     {
+        public Task Add(Customer customer);
         public Task<Customer> GetById(Guid id);
+        public Task<IEnumerable<Customer>> GetAll();
+        public Task Update(Customer customer);
+        public Task Delete(Guid id);
     }
 }

@@ -18,7 +18,12 @@ namespace Ecommerce.Application.Services
             _productRepository = productRepository;
         }
 
-        public async Task<Product> GetProductById(Guid id)
+        public async Task Add(Product product)
+        {
+            await _productRepository.Add(product);
+        }
+
+        public async Task<Product> GetById(Guid id)
         {
             var product = await _productRepository.GetById(id);
 
@@ -26,20 +31,17 @@ namespace Ecommerce.Application.Services
 
             return product;
         }
-        public async Task<IEnumerable<Product>> GetProductsByIds(IEnumerable<Guid> ids)
-        {
-            var products = await _productRepository.GetByIds(ids);
 
-            if (products == null) { throw new KeyNotFoundException("Products not found."); }
+        public async Task<IEnumerable<Product>> GetAll() => await _productRepository.GetAll();
 
-            return products;
-        }
-
-        public async Task<IEnumerable<Product>> GetAllProducts() => await _productRepository.GetAll();
-
-        public async Task UpdateProduct(Product product)
+        public async Task Update(Product product)
         {
             await _productRepository.Update(product);
+        }
+
+        public async Task Delete(Guid id)
+        {
+            await _productRepository.Delete(id);
         }
     }
 }

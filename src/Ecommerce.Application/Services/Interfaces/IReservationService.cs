@@ -9,8 +9,11 @@ namespace Ecommerce.Application.Services.Interfaces
 {
     public interface IReservationService
     {
-        public Task<Reservation> CreateReservation(Guid productId, Guid customerId);
-        public Task<IEnumerable<Reservation>> GetReservationsByCustomer(Guid customerId);
-        public Task<IEnumerable<Product>> GetProductsReservedByCustomer(Guid customerId);
+        public Task<Reservation> Add(Guid productId, Guid customerId);
+        public Task<Reservation> GetById(Guid id);
+        public Task<IEnumerable<Reservation>> GetAllByCustomerId(Guid customerId);
+        public Task<IEnumerable<Reservation>> GetAll();
+        public Task Update(Reservation reservation);
+        public Task Delete(Guid id);
     }
 }

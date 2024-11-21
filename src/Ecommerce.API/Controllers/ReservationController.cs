@@ -1,6 +1,7 @@
 ﻿using Ecommerce.API.Requests;
 using Ecommerce.Application.Services;
 using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,54 +9,44 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecommerce.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/reservations")]
     public class ReservationController : ControllerBase
     {
-        private readonly IProductService _productService;
         private readonly IReservationService _reservationService;
 
-        public ReservationController(IProductService productService, IReservationService reservationService)
+        public ReservationController(IReservationService reservationService)
         {
-            _productService = productService;
             _reservationService = reservationService;
         }
 
-        [HttpPost("products/{id}/reserve")]
-        public async Task<IActionResult> CreateReservation([FromBody] RequestCreateReservation request)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetReservation(Guid id)
         {
-            try
-            {
-                var reservation = await _reservationService.CreateReservation(request.ProductId, request.CustomerId);
-
-                return Ok(reservation);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var reservation = await _reservationService.GetById(id);
+            if (reservation == null) return NotFound();
+            return Ok(reservation);
         }
 
-        [HttpGet("customer/{id_customer}/reservations")]
-        public async Task<IActionResult> GetProductsReservedByCustomer(Guid customerId)
+        [HttpGet]
+        public async Task<IActionResult> GetAllReservations()
         {
-            try
-            {
-                var reservedProducts = await _reservationService.GetProductsReservedByCustomer(customerId);
-
-                return Ok(reservedProducts);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var reservations = await _reservationService.GetAll();
+            return Ok(reservations);
         }
 
-        [HttpGet("products")]
-        public async Task<IActionResult> GetAllProducts()
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateReservation(Guid id, [FromBody] Reservation updatedReservation)
         {
-            var products = await _productService.GetAllProducts();
+            updatedReservation.Id = id;
+            await _reservationService.Update(updatedReservation);
+            return Ok(updatedReservation);
+        }
 
-            return Ok(products);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteReservation(Guid id)
+        {
+            await _reservationService.Delete(id);
+            return NoContent();
         }
     }
 }
