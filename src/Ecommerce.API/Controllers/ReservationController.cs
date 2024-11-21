@@ -22,31 +22,44 @@ namespace Ecommerce.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReservation(Guid id)
         {
-            var reservation = await _reservationService.GetById(id);
-            if (reservation == null) return NotFound();
-            return Ok(reservation);
+            try
+            {
+                var reservation = await _reservationService.GetById(id);
+                if (reservation == null) return NotFound();
+                return Ok(reservation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllReservations()
         {
-            var reservations = await _reservationService.GetAll();
-            return Ok(reservations);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateReservation(Guid id, [FromBody] Reservation updatedReservation)
-        {
-            updatedReservation.Id = id;
-            await _reservationService.Update(updatedReservation);
-            return Ok(updatedReservation);
+            try
+            {
+                var reservations = await _reservationService.GetAll();
+                return Ok(reservations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(Guid id)
         {
-            await _reservationService.Delete(id);
-            return NoContent();
+            try
+            {
+                await _reservationService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
     }
 }

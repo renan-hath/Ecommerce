@@ -1,4 +1,5 @@
 ﻿using Ecommerce.API.Requests;
+using Ecommerce.Application.DataTransferObjects;
 using Ecommerce.Application.Services;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
@@ -21,55 +22,87 @@ namespace Ecommerce.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] Product product)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
         {
-            await _productService.Add(product);
-            return Ok(product);
+            try
+            {
+                var product = await _productService.Add(productDto);
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
         {
-            var product = await _productService.GetById(id);
-            if (product == null) return NotFound();
-            return Ok(product);
+            try
+            {
+                var product = await _productService.GetById(id);
+                if (product == null) return NotFound();
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _productService.GetAll();
-
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetAll();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductDto productDto)
         {
-            updatedProduct.Id = id;
-            await _productService.Update(updatedProduct);
-            return Ok(updatedProduct);
+            try
+            {
+                var updatedProduct = await _productService.Update(id, productDto);
+                return Ok(updatedProduct);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            await _productService.Delete(id);
-            return NoContent();
+            try
+            {
+                await _productService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpPost("{id}/reserve")]
-        public async Task<IActionResult> ReserveProduct([FromBody] RequestCreateReservation request)
+        public async Task<IActionResult> ReserveProduct(Guid id, [FromBody] ReservationDto reservationDto)
         {
             try
             {
-                var reservation = await _reservationService.Add(request.ProductId, request.CustomerId);
-
+                var reservation = await _reservationService.Add(id, reservationDto);
                 return Ok(reservation);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
             }
         }
     }

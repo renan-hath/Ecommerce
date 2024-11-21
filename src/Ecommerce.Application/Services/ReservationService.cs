@@ -1,4 +1,5 @@
-﻿using Ecommerce.Application.Services.Interfaces;
+﻿using Ecommerce.Application.DataTransferObjects;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Repositories.Interfaces;
 using System;
@@ -25,16 +26,16 @@ namespace Ecommerce.Application.Services
             _productService = productService;
         }
 
-        public async Task<Reservation> Add(Guid productId, Guid customerId)
+        public async Task<Reservation> Add(Guid id, ReservationDto reservationDto)
         {
-            var product = await _productService.GetById(productId);
+            var product = await _productService.GetById(id);
 
-            if (product == null || product.Status.Equals(_productStatusAvailable) || product.Status.Equals(_productStatusUnavailable))
+            if (product == null || product.Status.Equals(_productStatusReserved) || product.Status.Equals(_productStatusUnavailable))
             {
                 throw new InvalidOperationException("The product is invalid or currently unavailable.");
             }
 
-            var customer = await _customerService.GetById(customerId);
+            var customer = await _customerService.GetById(reservationDto.CustomerId);
 
             if (customer == null)
             {
@@ -43,8 +44,13 @@ namespace Ecommerce.Application.Services
 
             var reservation = new Reservation(product.Id, customer.Id);
 
-            product.Status = _productStatusReserved;
-            await _productService.Update(product);
+            var productDto = new ProductDto
+            {
+                Name = product.Name,
+                Status = _productStatusReserved
+            };
+
+            await _productService.Update(product.Id, productDto);
             await _reservationRepository.Add(reservation);
 
             return reservation;
@@ -71,12 +77,23 @@ namespace Ecommerce.Application.Services
             return await _reservationRepository.GetByCustomerId(customerId);
         }
 
-        public async Task<IEnumerable<Reservation>> GetAll() => await _reservationRepository.GetAll();
-
-        public async Task Update(Reservation reservation)
+        public async Task<IEnumerable<Product>> GetAllProductsReservedByCustomerId(Guid customerId)
         {
-            await _reservationRepository.Update(reservation);
+            var reservations = await GetAllByCustomerId(customerId);
+
+            if (reservations == null || !reservations.Any())
+            {
+                throw new KeyNotFoundException("No reservations found for the given customer.");
+            }
+
+            var productIds = reservations.Select(r => r.ProductId).Distinct();
+
+            var products = await _productService.GetByIds(productIds);
+
+            return products;
         }
+
+        public async Task<IEnumerable<Reservation>> GetAll() => await _reservationRepository.GetAll();
 
         public async Task Delete(Guid id)
         {

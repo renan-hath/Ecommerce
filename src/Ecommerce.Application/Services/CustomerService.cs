@@ -1,4 +1,5 @@
-﻿using Ecommerce.Application.Services.Interfaces;
+﻿using Ecommerce.Application.DataTransferObjects;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Repositories.Interfaces;
 using System;
@@ -18,9 +19,12 @@ namespace Ecommerce.Application.Services
             _customerRepository = customerRepository;
         }
 
-        public async Task Add(Customer customer)
+        public async Task<Customer> Add(CustomerDto customerDto)
         {
+            var customer = new Customer(customerDto.Name);
             await _customerRepository.Add(customer);
+
+            return customer;
         }
 
         public async Task<Customer> GetById(Guid id)
@@ -37,9 +41,13 @@ namespace Ecommerce.Application.Services
             return await _customerRepository.GetAll();
         }
 
-        public async Task Update(Customer customer)
+        public async Task<Customer> Update(Guid id, CustomerDto customerDto)
         {
-            await _customerRepository.Update(customer);
+            var updatedCustomer = await GetById(id);
+            updatedCustomer.Name = customerDto.Name;
+            await _customerRepository.Update(updatedCustomer);
+
+            return updatedCustomer;
         }
 
         public async Task Delete(Guid id)

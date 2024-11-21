@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Application.Services;
 using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Application.DataTransferObjects;
 using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,54 +21,88 @@ namespace Ecommerce.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCustomer([FromBody] Customer customer)
+        public async Task<IActionResult> CreateCustomer([FromBody] CustomerDto customerDto)
         {
-            await _customerService.Add(customer);
-            return Ok(customer);
+            try
+            {
+                var customer = await _customerService.Add(customerDto);
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer(Guid id)
         {
-            var customer = await _customerService.GetById(id);
-            if (customer == null) return NotFound();
-            return Ok(customer);
+            try
+            {
+                var customer = await _customerService.GetById(id);
+                if (customer == null) return NotFound();
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var customers = await _customerService.GetAll();
-            return Ok(customers);
+            try
+            {
+                var customers = await _customerService.GetAll();
+                return Ok(customers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] Customer updatedCustomer)
+        public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] CustomerDto customerDto)
         {
-            updatedCustomer.Id = id;
-            await _customerService.Update(updatedCustomer);
-            return Ok(updatedCustomer);
+            try
+            {
+                var updatedCustomer = await _customerService.Update(id, customerDto);
+                return Ok(updatedCustomer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(Guid id)
         {
-            await _customerService.Delete(id);
-            return NoContent();
+            try
+            {
+                await _customerService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
         }
 
         [HttpGet("{id_customer}/reservations")]
-        public async Task<IActionResult> GetCustomerReservations(Guid customerId)
+        public async Task<IActionResult> GetCustomerReservations(Guid id_customer)
         {
             try
             {
-                var reservedProducts = await _reservationService.GetAllByCustomerId(customerId);
+                var reservedProducts = await _reservationService.GetAllProductsReservedByCustomerId(id_customer);
 
                 return Ok(reservedProducts);
             }
-            catch (KeyNotFoundException ex)
+            catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
             }
         }
     }

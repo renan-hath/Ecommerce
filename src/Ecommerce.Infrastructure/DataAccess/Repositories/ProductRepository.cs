@@ -26,6 +26,13 @@ namespace Ecommerce.Infrastructure.DataAccess.Repositories
 
         public async Task<Product> GetById(Guid id) => await _context.Products.FindAsync(id);
 
+        public async Task<IEnumerable<Product>> GetByIds(IEnumerable<Guid> ids)
+        {
+            return await _context.Products
+                                 .Where(p => ids.Contains(p.Id))
+                                 .ToListAsync();
+        }
+
         public async Task<IEnumerable<Product>> GetAll() => await _context.Products.ToListAsync();
 
         public async Task Update(Product product)
