@@ -12,6 +12,7 @@ namespace Ecommerce.Domain.Entities
         public Guid ProductId { get; set; }
         public Guid CustomerId { get; set; }
         public DateTime ReservationDate { get; set; }
+        public bool IsActive { get; set; }
 
         public Reservation(Guid productId, Guid customerId)
         {
@@ -19,6 +20,7 @@ namespace Ecommerce.Domain.Entities
             ProductId = productId;
             CustomerId = customerId;
             ReservationDate = DateTime.UtcNow;
+            IsActive = true;
         }
     }
 }

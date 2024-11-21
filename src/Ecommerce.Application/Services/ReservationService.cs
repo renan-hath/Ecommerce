@@ -15,15 +15,18 @@ namespace Ecommerce.Application.Services
         private readonly IReservationRepository _reservationRepository;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
+        private readonly IJobScheduler _jobScheduler;
         private const string _productStatusAvailable = "disponível";
         private const string _productStatusUnavailable = "indisponível";
         private const string _productStatusReserved = "reservado";
+        private const int _reservationExpirationDays = 3;
 
-        public ReservationService(IReservationRepository reservationRepository, ICustomerService customerService, IProductService productService)
+        public ReservationService(IReservationRepository reservationRepository, ICustomerService customerService, IProductService productService, IJobScheduler jobScheduler)
         {
             _reservationRepository = reservationRepository;
             _customerService = customerService;
             _productService = productService;
+            _jobScheduler = jobScheduler;
         }
 
         public async Task<Reservation> Add(Guid id, ReservationDto reservationDto)
@@ -52,6 +55,7 @@ namespace Ecommerce.Application.Services
 
             await _productService.Update(product.Id, productDto);
             await _reservationRepository.Add(reservation);
+            SetToExpire(reservation.Id);
 
             return reservation;
         }
@@ -95,9 +99,41 @@ namespace Ecommerce.Application.Services
 
         public async Task<IEnumerable<Reservation>> GetAll() => await _reservationRepository.GetAll();
 
+        public async Task<Reservation> Update(Reservation reservation)
+        {
+            await _reservationRepository.Update(reservation);
+
+            return reservation;
+        }
+
         public async Task Delete(Guid id)
         {
             await _reservationRepository.Delete(id);
+        }
+
+        public void SetToExpire(Guid id)
+        {
+            _jobScheduler.Schedule<ReservationService>(
+                service => service.Expire(id),
+                TimeSpan.FromDays(_reservationExpirationDays)
+            );
+        }
+        public async Task Expire(Guid id)
+        {
+            var reservation = await GetById(id);
+            if (reservation == null || !reservation.IsActive) { return; }
+            reservation.IsActive = false;
+
+            var product = await _productService.GetById(reservation.ProductId);
+            if (product == null) { return; }
+            var productDto = new ProductDto
+            {
+                Name = product.Name,
+                Status = _productStatusAvailable
+            };
+
+            await _productService.Update(product.Id, productDto);
+            await Update(reservation);
         }
     }
 }

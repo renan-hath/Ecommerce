@@ -105,5 +105,20 @@ namespace Ecommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
             }
         }
+
+        [HttpGet("{id_customer}/detailed_reservations")]
+        public async Task<IActionResult> GetCustomerDetailedReservations(Guid id_customer)
+        {
+            try
+            {
+                var reservations = await _reservationService.GetAllByCustomerId(id_customer);
+
+                return Ok(reservations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal error.");
+            }
+        }
     }
 }

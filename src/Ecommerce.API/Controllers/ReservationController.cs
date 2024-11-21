@@ -1,5 +1,4 @@
-﻿using Ecommerce.API.Requests;
-using Ecommerce.Application.Services;
+﻿using Ecommerce.Application.Services;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Repositories.Interfaces;
